@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity 0.7.0;
 
 import "./IERC20.sol";
@@ -79,7 +81,9 @@ contract Token is IERC20, IMintableToken, IDividends {
 
     function mint() external payable override nonReentrant {
         require(msg.value > 0, "Invalid ETH sent");
+
         totalSupply = totalSupply.add(msg.value);
+
         balanceOf[msg.sender] = balanceOf[msg.sender].add(msg.value);
 
         if (balanceOf[msg.sender] == msg.value) {
@@ -109,10 +113,11 @@ contract Token is IERC20, IMintableToken, IDividends {
     function getTokenHolder(
         uint256 index
     ) external view override returns (address) {
-        require(index > 0 && index <= holders.length, "Index out of bounds");
+        require(index > 0 && index <= holders.length, "Index is out of bounds");
         return holders[index - 1];
     }
 
+    // Distributes eth value sent to all active holders proportional to their current token balance
     function recordDividend() external payable override {
         require(msg.value > 0, "Dividend value must be greater than 0");
         require(
@@ -127,11 +132,11 @@ contract Token is IERC20, IMintableToken, IDividends {
             uint256 holderBalance = balanceOf[holder];
 
             if (holderBalance > 0) {
-                // share = (dividendAmount * holderBalance) / totalSupply
                 uint256 share = dividendAmount.mul(holderBalance).div(
                     totalSupply
                 );
-                withdrawableDividends[holder] = withdrawableDividends[holder].add(share);
+                withdrawableDividends[holder] = withdrawableDividends[holder]
+                    .add(share);
             }
         }
     }
@@ -142,9 +147,11 @@ contract Token is IERC20, IMintableToken, IDividends {
         return withdrawableDividends[payee];
     }
 
-    function withdrawDividend(address payable dest) external override {
+    function withdrawDividend(
+        address payable dest
+    ) external override nonReentrant {
         // (Checks-Effects-Interactions)
-        
+
         uint256 amount = withdrawableDividends[msg.sender];
         require(amount > 0, "No withdrawable dividend available");
         require(dest != address(0), "Invalid destination address");
@@ -164,7 +171,7 @@ contract Token is IERC20, IMintableToken, IDividends {
         balanceOf[from] = balanceOf[from].sub(value);
         balanceOf[to] = balanceOf[to].add(value);
 
-        if (balanceOf[to] == value) {
+        if (balanceOf[to] > 0 && holderIndex[to] == 0) {
             _addHolder(to);
         }
 
@@ -173,14 +180,14 @@ contract Token is IERC20, IMintableToken, IDividends {
         }
     }
 
-    function _addHolder(address account) private {
+    function _addHolder(address account) internal {
         if (holderIndex[account] == 0) {
             holders.push(account);
             holderIndex[account] = holders.length;
         }
     }
 
-    function _removeHolder(address account) private {
+    function _removeHolder(address account) internal {
         uint256 index = holderIndex[account];
         if (index != 0) {
             uint256 arrayIndex = index - 1;
