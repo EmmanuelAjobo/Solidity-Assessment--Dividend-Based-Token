@@ -31,7 +31,7 @@ For a clearer understanding of how the code is supposed to work please refer to 
 
 Your Solution must pass the test: `npm run test` - run the tests (Hardhat)
 
-![Test Result](./test-result.png)
+![Test Result](./result.png)
 
 ### 3: Submission
 
