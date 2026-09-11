@@ -35,7 +35,7 @@ Your Solution must pass the test: `npm run test` - run the tests (Hardhat)
 
 ### 3: Submission
 
-Record a short [Loom video]([https://www.loom.com/share/d183331d7cd444dfb838b6b6bc30b7bf]) showing how it works, including the expected and actual behavior if you're testing.
+Record a short [Loom video](https://www.loom.com/share/d183331d7cd444dfb838b6b6bc30b7bf) showing how it works, including the expected and actual behavior if you're testing.
 
 ### 4. Deadline
 
